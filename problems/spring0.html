@@ -30,15 +30,167 @@
             margin-bottom: 30px;
         }
 
+        .header-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
         header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
+        .info-btn {
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .info-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: white;
+            transform: scale(1.05);
+        }
+
         header p {
             font-size: 1.1em;
             opacity: 0.9;
+        }
+
+        /* モーダル */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 700px;
+            max-height: 85vh;
+            width: 100%;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .modal-section {
+            margin-bottom: 25px;
+        }
+
+        .modal-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-section h3 {
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-section p,
+        .modal-section li {
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .modal-section ul {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+
+        .modal-section li {
+            margin-bottom: 8px;
+        }
+
+        .feature-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #e9ecef;
+            border-radius: 15px;
+            font-size: 0.85em;
+            margin: 3px;
+        }
+
+        .coming-soon {
+            background: #fff3cd;
+            color: #856404;
         }
 
         .tabs {
@@ -556,7 +708,10 @@
 <body>
     <div class="container">
         <header>
-            <h1>🔬 理科問題ジェネレーター</h1>
+            <div class="header-content">
+                <h1>🔬 理科問題ジェネレーター</h1>
+                <button class="info-btn" onclick="openAboutModal()">ℹ️ このサイトについて</button>
+            </div>
             <p>ばねの問題を自由にカスタマイズして作成できます</p>
         </header>
 
@@ -680,6 +835,61 @@
         <footer>
             <p>© 2026 理科問題ジェネレーター | Powered by GitHub Pages</p>
         </footer>
+    </div>
+
+    <!-- About Modal -->
+    <div class="modal-overlay" id="aboutModal" onclick="closeAboutModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>🔬 このサイトについて</h2>
+                <button class="modal-close" onclick="closeAboutModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <h3>📖 使い方</h3>
+                    <ul>
+                        <li><strong>問題の種類を選ぶ</strong>：上部のタブから「単一のばね」「直列つなぎ」「並列つなぎ」を選択</li>
+                        <li><strong>数値をカスタマイズ</strong>：黄色でハイライトされた数値をクリックして、自由に変更できます</li>
+                        <li><strong>解答を確認</strong>：「解答を表示」ボタンで詳しい解説付きの解答が見られます</li>
+                        <li><strong>印刷する</strong>：「🖨️ 印刷」ボタンで問題と解答を2ページに分けて印刷できます</li>
+                    </ul>
+                </div>
+
+                <div class="modal-section">
+                    <h3>🛠️ どのように作られたか</h3>
+                    <p>このサイトは、中学受験の理科学習をサポートするために開発されました。</p>
+                    <ul>
+                        <li><strong>技術</strong>：HTML、CSS、JavaScriptのみで構築（フレームワーク不使用）</li>
+                        <li><strong>ホスティング</strong>：GitHub Pagesで無料公開</li>
+                        <li><strong>特徴</strong>：リアルタイム計算、Canvas描画による動的な図、印刷最適化</li>
+                    </ul>
+                </div>
+
+                <div class="modal-section">
+                    <h3>🚀 今後の予定</h3>
+                    <p>このサイトは継続的に機能を追加していく予定です：</p>
+                    <div style="margin-top: 10px;">
+                        <span class="feature-badge coming-soon">🔜 てこ・滑車の問題</span>
+                        <span class="feature-badge coming-soon">🔜 電気回路の問題</span>
+                        <span class="feature-badge coming-soon">🔜 水溶液の問題</span>
+                        <span class="feature-badge coming-soon">🔜 天体の問題</span>
+                        <span class="feature-badge coming-soon">🔜 問題のランダム生成</span>
+                        <span class="feature-badge coming-soon">🔜 難易度選択機能</span>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3>💡 開発者へ</h3>
+                    <p>ご意見・ご要望がありましたら、GitHubのIssueでお知らせください。</p>
+                    <p style="margin-top: 10px;">
+                        <a href="https://github.com/Enzun/problem_generator" target="_blank"
+                            style="color: #667eea; text-decoration: none; font-weight: bold;">
+                            📦 GitHubリポジトリを見る →
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1256,6 +1466,25 @@
                 }, 100);
             }, 100);
         }
+
+        // モーダル開閉
+        function openAboutModal() {
+            document.getElementById('aboutModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAboutModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('aboutModal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // ESCキーでモーダルを閉じる
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeAboutModal();
+            }
+        });
     </script>
 </body>
 
