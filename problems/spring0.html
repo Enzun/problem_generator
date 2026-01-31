@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>理科問題ジェネレーター - ばね編</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Yu Gothic', 'Hiragino Kaku Gothic Pro', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 10px 10px 0 0;
+            transition: all 0.3s;
+        }
+
+        .tab-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .tab-button.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 0 10px 10px 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .settings-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .settings-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-field label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .input-field input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .output-section {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .output-section.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .problem-box {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 5px solid #667eea;
+            margin-bottom: 20px;
+        }
+
+        .problem-box h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .problem-text {
+            line-height: 1.8;
+            font-size: 1.05em;
+            margin-bottom: 15px;
+        }
+
+        .conditions {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .conditions ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .conditions li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .conditions li:last-child {
+            border-bottom: none;
+        }
+
+        .conditions li:before {
+            content: "▸ ";
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .questions {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .questions p {
+            margin: 8px 0;
+            font-weight: 500;
+        }
+
+        .diagram-canvas {
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+            margin: 20px auto;
+            display: block;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .answer-section {
+            margin-top: 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+
+        .answer-section.show {
+            max-height: 2000px;
+        }
+
+        .answer-box {
+            background: #d4edda;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid #28a745;
+        }
+
+        .answer-box h4 {
+            color: #155724;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .answer-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .answer-item h5 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .formula {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        .answer-value {
+            background: #fff3cd;
+            padding: 8px 15px;
+            border-radius: 5px;
+            display: inline-block;
+            font-weight: bold;
+            color: #856404;
+            margin-top: 5px;
+        }
+
+        .toggle-answer-btn {
+            width: 100%;
+            padding: 12px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .toggle-answer-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .toggle-answer-btn.active {
+            background: #dc3545;
+        }
+
+        .toggle-answer-btn.active:hover {
+            background: #c82333;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+
+        /* インライン編集可能な値のスタイル */
+        .editable-value {
+            display: inline-block;
+            min-width: 30px;
+            padding: 2px 8px;
+            margin: 0 2px;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .editable-value:hover {
+            background: #ffeeba;
+            border-color: #e0a800;
+            transform: scale(1.05);
+        }
+
+        .editable-value:focus {
+            outline: none;
+            background: white;
+            border-color: #667eea;
+            box-shadow: 0 0 8px rgba(102, 126, 234, 0.5);
+        }
+
+        .editable-value.error {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .edit-hint {
+            font-size: 0.85em;
+            color: #6c757d;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+        }
+
+        .edit-hint::before {
+            content: "💡 ";
+        }
+
+        /* 設定セクションを非表示にして問題をメインに */
+        .output-section.always-show {
+            display: block !important;
+        }
+
+        /* 問題ボックスの横幅制限（見やすさ改善） */
+        .problem-box,
+        .answer-box {
+            max-width: 800px;
+        }
+
+        /* 問題ヘッダー（タイトルと印刷ボタン） */
+        .problem-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .problem-header h3 {
+            margin-bottom: 0;
+        }
+
+        /* 印刷ボタン */
+        .print-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .print-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+        }
+
+        .print-btn:active {
+            transform: translateY(0);
+        }
+
+        /* 印刷用スタイル */
+        @media print {
+
+            /* ベース設定 */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            body {
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            /* 非表示にする要素 */
+            header,
+            .tabs,
+            footer,
+            .toggle-answer-btn,
+            .print-btn,
+            .edit-hint {
+                display: none !important;
+            }
+
+            /* 編集可能な値を通常テキストに */
+            .editable-value {
+                background: transparent !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            /* カード・コンテナのリセット */
+            .container {
+                max-width: 100% !important;
+                padding: 0 !important;
+            }
+
+            .card {
+                box-shadow: none !important;
+                padding: 20px !important;
+                border-radius: 0 !important;
+            }
+
+            .tab-content {
+                display: none !important;
+            }
+
+            .tab-content.printing {
+                display: block !important;
+            }
+
+            /* 問題ボックス */
+            .problem-box {
+                max-width: 100% !important;
+                border: 2px solid #333 !important;
+                border-radius: 8px !important;
+                padding: 20px !important;
+                margin-bottom: 20px !important;
+                page-break-after: always !important;
+                background: white !important;
+            }
+
+            /* 解答セクション */
+            .answer-section {
+                max-height: none !important;
+                overflow: visible !important;
+            }
+
+            .answer-section.print-show {
+                display: block !important;
+            }
+
+            .answer-box {
+                max-width: 100% !important;
+                border: 2px solid #28a745 !important;
+                border-radius: 8px !important;
+                padding: 20px !important;
+                background: white !important;
+                page-break-before: always !important;
+            }
+
+            /* Canvas図 */
+            .diagram-canvas {
+                max-width: 100% !important;
+                height: auto !important;
+                border: 1px solid #ddd !important;
+            }
+
+            /* 問題のタイトル */
+            .problem-header h3,
+            .problem-box h3 {
+                color: #333 !important;
+                border-bottom: 2px solid #333;
+                padding-bottom: 10px;
+            }
+
+            /* 条件と問い */
+            .conditions {
+                background: #f5f5f5 !important;
+            }
+
+            .questions {
+                background: #fffbe6 !important;
+            }
+
+            /* 解答内のスタイル */
+            .answer-item {
+                border-bottom: 1px solid #ddd;
+                padding-bottom: 15px;
+                margin-bottom: 15px;
+            }
+
+            .formula {
+                background: #f0f0f0 !important;
+                border: 1px solid #ccc !important;
+            }
+
+            .answer-value {
+                background: #e8f5e9 !important;
+                color: #2e7d32 !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔬 理科問題ジェネレーター</h1>
+            <p>ばねの問題を自由にカスタマイズして作成できます</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab(0)">単一のばね</button>
+            <button class="tab-button" onclick="switchTab(1)">直列つなぎ</button>
+            <button class="tab-button" onclick="switchTab(2)">並列つなぎ</button>
+        </div>
+
+        <!-- タブ1: 単一のばね -->
+        <div class="tab-content active" id="tab-0">
+            <div class="card">
+                <div class="problem-box">
+                    <div class="problem-header">
+                        <h3>📋 問題</h3>
+                        <button class="print-btn" onclick="printProblem('single')">🖨️ 印刷</button>
+                    </div>
+                    <p class="edit-hint">黄色の数値をクリックして変更できます</p>
+                    <div class="problem-text">
+                        図のように、天井からばねAをつるし、おもりをつけました。次の問いに答えなさい。
+                    </div>
+                    <div class="conditions">
+                        <ul>
+                            <li>ばねAの自然長：<span class="editable-value" id="single-naturalLength" contenteditable="true"
+                                    data-min="5" data-max="50">15</span>cm</li>
+                            <li>ばねAは<span class="editable-value" id="single-baseWeight" contenteditable="true"
+                                    data-min="1" data-max="100">20</span>gのおもりで<span class="editable-value"
+                                    id="single-baseStretch" contenteditable="true" data-min="1"
+                                    data-max="20">2</span>cm伸びる</li>
+                            <li>おもりの重さ：<span class="editable-value" id="single-weight" contenteditable="true"
+                                    data-min="1" data-max="200">60</span>g</li>
+                        </ul>
+                    </div>
+                    <canvas class="diagram-canvas" id="single-canvas"></canvas>
+                    <div class="questions" id="single-questions"></div>
+                </div>
+
+                <button class="toggle-answer-btn" onclick="toggleAnswer('single')">解答を表示</button>
+                <div class="answer-section" id="single-answer">
+                    <div class="answer-box" id="single-answer-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- タブ2: 直列つなぎ -->
+        <div class="tab-content" id="tab-1">
+            <div class="card">
+                <div class="problem-box">
+                    <div class="problem-header">
+                        <h3>📋 問題</h3>
+                        <button class="print-btn" onclick="printProblem('series')">🖨️ 印刷</button>
+                    </div>
+                    <p class="edit-hint">黄色の数値をクリックして変更できます</p>
+                    <div class="problem-text">
+                        図のように、2本のばねA、Bを直列につなぎ、おもりをつけました。次の問いに答えなさい。
+                    </div>
+                    <div class="conditions">
+                        <ul>
+                            <li>ばねA：自然長<span class="editable-value" id="series-naturalA" contenteditable="true"
+                                    data-min="5" data-max="50">10</span>cm、<span class="editable-value"
+                                    id="series-baseWeightA" contenteditable="true" data-min="1"
+                                    data-max="100">10</span>gで<span class="editable-value" id="series-baseStretchA"
+                                    contenteditable="true" data-min="1" data-max="20">1</span>cm伸びる</li>
+                            <li>ばねB：自然長<span class="editable-value" id="series-naturalB" contenteditable="true"
+                                    data-min="5" data-max="50">12</span>cm、<span class="editable-value"
+                                    id="series-baseWeightB" contenteditable="true" data-min="1"
+                                    data-max="100">10</span>gで<span class="editable-value" id="series-baseStretchB"
+                                    contenteditable="true" data-min="1" data-max="20">2</span>cm伸びる</li>
+                            <li>おもりの重さ：<span class="editable-value" id="series-weight" contenteditable="true"
+                                    data-min="1" data-max="200">40</span>g</li>
+                        </ul>
+                    </div>
+                    <canvas class="diagram-canvas" id="series-canvas"></canvas>
+                    <div class="questions" id="series-questions"></div>
+                </div>
+
+                <button class="toggle-answer-btn" onclick="toggleAnswer('series')">解答を表示</button>
+                <div class="answer-section" id="series-answer">
+                    <div class="answer-box" id="series-answer-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- タブ3: 並列つなぎ -->
+        <div class="tab-content" id="tab-2">
+            <div class="card">
+                <div class="problem-box">
+                    <div class="problem-header">
+                        <h3>📋 問題</h3>
+                        <button class="print-btn" onclick="printProblem('parallel')">🖨️ 印刷</button>
+                    </div>
+                    <p class="edit-hint">黄色の数値をクリックして変更できます</p>
+                    <div class="problem-text" id="parallel-problem-text">
+                        図のように、<span class="editable-value" id="parallel-count" contenteditable="true" data-min="2"
+                            data-max="5">2</span>本の同じばねを並列につなぎ、棒におもりをつるしました。次の問いに答えなさい。
+                    </div>
+                    <div class="conditions">
+                        <ul>
+                            <li>各ばねの自然長：<span class="editable-value" id="parallel-natural" contenteditable="true"
+                                    data-min="5" data-max="50">10</span>cm</li>
+                            <li>各ばねは<span class="editable-value" id="parallel-baseWeight" contenteditable="true"
+                                    data-min="1" data-max="100">10</span>gで<span class="editable-value"
+                                    id="parallel-baseStretch" contenteditable="true" data-min="1"
+                                    data-max="20">1</span>cm伸びる（同じ種類）</li>
+                            <li>おもりの重さ：<span class="editable-value" id="parallel-weight" contenteditable="true"
+                                    data-min="1" data-max="200">60</span>g</li>
+                            <li>棒の重さは考えない</li>
+                        </ul>
+                    </div>
+                    <canvas class="diagram-canvas" id="parallel-canvas"></canvas>
+                    <div class="questions" id="parallel-questions"></div>
+                </div>
+
+                <button class="toggle-answer-btn" onclick="toggleAnswer('parallel')">解答を表示</button>
+                <div class="answer-section" id="parallel-answer">
+                    <div class="answer-box" id="parallel-answer-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2026 理科問題ジェネレーター | Powered by GitHub Pages</p>
+        </footer>
+    </div>
+
+    <script>
+        // タブ切り替え
+        function switchTab(index) {
+            const tabs = document.querySelectorAll('.tab-button');
+            const contents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach((tab, i) => {
+                if (i === index) {
+                    tab.classList.add('active');
+                    contents[i].classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                    contents[i].classList.remove('active');
+                }
+            });
+        }
+
+        // 解答の表示/非表示
+        function toggleAnswer(type) {
+            const answerSection = document.getElementById(`${type}-answer`);
+            const button = answerSection.previousElementSibling;
+
+            if (answerSection.classList.contains('show')) {
+                answerSection.classList.remove('show');
+                button.textContent = '解答を表示';
+                button.classList.remove('active');
+            } else {
+                answerSection.classList.add('show');
+                button.textContent = '解答を非表示';
+                button.classList.add('active');
+            }
+        }
+
+        // 単一ばねの問題生成
+        function generateSingleSpring() {
+            const naturalLength = parseFloat(document.getElementById('single-naturalLength').textContent) || 15;
+            const baseWeight = parseFloat(document.getElementById('single-baseWeight').textContent) || 20;
+            const baseStretch = parseFloat(document.getElementById('single-baseStretch').textContent) || 2;
+            const weight = parseFloat(document.getElementById('single-weight').textContent) || 60;
+
+            // 計算
+            const stretchPer1g = baseStretch / baseWeight;
+            const stretch = stretchPer1g * weight;
+            const totalLength = naturalLength + stretch;
+
+            // 問い
+            document.getElementById('single-questions').innerHTML = `
+                <p><strong>(1)</strong> このばねは1gのおもりで何cm伸びますか。</p>
+                <p><strong>(2)</strong> ${weight}gのおもりをつるすと、ばねの長さは何cmになりますか。</p>
+                <p><strong>(3)</strong> ばねの長さを${totalLength}cmにするには、何gのおもりをつるせばよいですか。</p>
+            `;
+
+            // 図の描画
+            drawSingleSpring(naturalLength, stretch);
+
+            // 解答
+            document.getElementById('single-answer-content').innerHTML = `
+                <h4>解答と解説</h4>
+                
+                <div class="answer-item">
+                    <h5>(1) 1gあたりの伸び</h5>
+                    <p><strong>考え方：</strong> ${baseWeight}gで${baseStretch}cm伸びるので、1gあたりを計算</p>
+                    <div class="formula">
+                        ${baseStretch}cm ÷ ${baseWeight}g = ${stretchPer1g}cm
+                    </div>
+                    <div class="answer-value">答え: ${stretchPer1g}cm</div>
+                </div>
+                
+                <div class="answer-item">
+                    <h5>(2) ばねの長さ</h5>
+                    <p><strong>考え方：</strong> ばねの長さ = 自然長 + 伸び</p>
+                    <div class="formula">
+                        伸び = ${stretchPer1g}cm × ${weight}g = ${stretch}cm<br>
+                        ばねの長さ = ${naturalLength}cm + ${stretch}cm = ${totalLength}cm
+                    </div>
+                    <div class="answer-value">答え: ${totalLength}cm</div>
+                </div>
+                
+                <div class="answer-item">
+                    <h5>(3) 必要なおもりの重さ</h5>
+                    <p><strong>考え方：</strong> ばねの長さが${totalLength}cmになるための伸びから逆算</p>
+                    <div class="formula">
+                        必要な伸び = ${totalLength}cm - ${naturalLength}cm = ${stretch}cm<br>
+                        おもりの重さ = ${stretch}cm ÷ ${stretchPer1g}cm = ${weight}g
+                    </div>
+                    <div class="answer-value">答え: ${weight}g</div>
+                </div>
+            `;
+        }
+
+        // 直列ばねの問題生成
+        function generateSeriesSpring() {
+            const naturalA = parseFloat(document.getElementById('series-naturalA').textContent) || 10;
+            const baseWeightA = parseFloat(document.getElementById('series-baseWeightA').textContent) || 10;
+            const baseStretchA = parseFloat(document.getElementById('series-baseStretchA').textContent) || 1;
+
+            const naturalB = parseFloat(document.getElementById('series-naturalB').textContent) || 12;
+            const baseWeightB = parseFloat(document.getElementById('series-baseWeightB').textContent) || 10;
+            const baseStretchB = parseFloat(document.getElementById('series-baseStretchB').textContent) || 2;
+
+            const weight = parseFloat(document.getElementById('series-weight').textContent) || 40;
+
+            // 計算
+            const stretchPerA = baseStretchA / baseWeightA;
+            const stretchPerB = baseStretchB / baseWeightB;
+
+            const stretchA = stretchPerA * weight;
+            const stretchB = stretchPerB * weight;
+
+            const lengthA = naturalA + stretchA;
+            const lengthB = naturalB + stretchB;
+            const totalLength = lengthA + lengthB;
+
+            // 問い
+            document.getElementById('series-questions').innerHTML = `
+                <p><strong>(1)</strong> ばねAの長さは何cmになりますか。</p>
+                <p><strong>(2)</strong> ばねBの長さは何cmになりますか。</p>
+                <p><strong>(3)</strong> 2本のばね全体の長さは何cmになりますか。</p>
+            `;
+
+            // 図の描画
+            drawSeriesSpring(stretchA, stretchB);
+
+            // 解答
+            document.getElementById('series-answer-content').innerHTML = `
+                <h4>解答と解説</h4>
+                
+                <div class="answer-item">
+                    <h5>重要ポイント</h5>
+                    <p style="background: #fff3cd; padding: 10px; border-radius: 5px;">
+                        <strong>直列つなぎでは、各ばねに同じ力（${weight}g）がかかります！</strong>
+                    </p>
+                </div>
+                
+                <div class="answer-item">
+                    <h5>(1) ばねAの長さ</h5>
+                    <p><strong>考え方：</strong> ばねAに${weight}gの力がかかる</p>
+                    <div class="formula">
+                        ばねAは${baseWeightA}gで${baseStretchA}cm伸びるので、<br>
+                        ${weight}gでの伸び = ${baseStretchA}cm × (${weight} ÷ ${baseWeightA}) = ${stretchA}cm<br>
+                        ばねAの長さ = ${naturalA}cm + ${stretchA}cm = ${lengthA}cm
+                    </div>
+                    <div class="answer-value">答え: ${lengthA}cm</div>
+                </div>
+                
+                <div class="answer-item">
+                    <h5>(2) ばねBの長さ</h5>
+                    <p><strong>考え方：</strong> ばねBにも${weight}gの力がかかる</p>
+                    <div class="formula">
+                        ばねBは${baseWeightB}gで${baseStretchB}cm伸びるので、<br>
+                        ${weight}gでの伸び = ${baseStretchB}cm × (${weight} ÷ ${baseWeightB}) = ${stretchB}cm<br>
+                        ばねBの長さ = ${naturalB}cm + ${stretchB}cm = ${lengthB}cm
+                    </div>
+                    <div class="answer-value">答え: ${lengthB}cm</div>
+                </div>
+                
+                <div class="answer-item">
+                    <h5>(3) 全体の長さ</h5>
+                    <div class="formula">
+                        全体の長さ = ばねAの長さ + ばねBの長さ<br>
+                        = ${lengthA}cm + ${lengthB}cm = ${totalLength}cm
+                    </div>
+                    <div class="answer-value">答え: ${totalLength}cm</div>
+                </div>
+            `;
+        }
+
+        // 並列ばねの問題生成
+        function generateParallelSpring() {
+            const natural = parseFloat(document.getElementById('parallel-natural').textContent) || 10;
+            const baseWeight = parseFloat(document.getElementById('parallel-baseWeight').textContent) || 10;
+            const baseStretch = parseFloat(document.getElementById('parallel-baseStretch').textContent) || 1;
+            const count = parseInt(document.getElementById('parallel-count').textContent) || 2;
+            const weight = parseFloat(document.getElementById('parallel-weight').textContent) || 60;
+
+            // 計算
+            const weightPerSpring = weight / count;
+            const stretchPer1g = baseStretch / baseWeight;
+            const stretch = stretchPer1g * weightPerSpring;
+            const length = natural + stretch;
+
+            // 問い
+            document.getElementById('parallel-questions').innerHTML = `
+                <p><strong>(1)</strong> 1本のばねにはそれぞれ何gの力がかかりますか。</p>
+                <p><strong>(2)</strong> 各ばねの長さは何cmになりますか。</p>
+                <p><strong>(3)</strong> もし同じばねを${count + 1}本並列につないだ場合、1本のばねの長さは何cmになりますか。</p>
+            `;
+
+            // 図の描画
+            drawParallelSpring(count, stretch);
+
+            // 追加計算（問3用）
+            const weightPerSpringPlus = weight / (count + 1);
+            const stretchPlus = stretchPer1g * weightPerSpringPlus;
+            const lengthPlus = natural + stretchPlus;
+
+            // 解答
+            document.getElementById('parallel-answer-content').innerHTML = `
+                <h4>解答と解説</h4>
+                
+                <div class="answer-item">
+                    <h5>重要ポイント</h5>
+                    <p style="background: #fff3cd; padding: 10px; border-radius: 5px;">
+                        <strong>並列つなぎ（同じばね）では、力が本数で均等に分かれます！</strong>
+                    </p>
+                </div>
+                
+                <div class="answer-item">
+                    <h5>(1) 1本のばねにかかる力</h5>
+                    <p><strong>考え方：</strong> ${count}本で${weight}gを支えるので、均等に分かれる</p>
+                    <div class="formula">
+                        1本あたりの力 = ${weight}g ÷ ${count} = ${weightPerSpring}g
+                    </div>
+                    <div class="answer-value">答え: ${weightPerSpring}g</div>
+                </div>
+                
+                <div class="answer-item">
+                    <h5>(2) 各ばねの長さ</h5>
+                    <p><strong>考え方：</strong> 各ばねに${weightPerSpring}gの力がかかる</p>
+                    <div class="formula">
+                        ${baseWeight}gで${baseStretch}cm伸びるので、<br>
+                        ${weightPerSpring}gでの伸び = ${baseStretch}cm × (${weightPerSpring} ÷ ${baseWeight}) = ${stretch}cm<br>
+                        ばねの長さ = ${natural}cm + ${stretch}cm = ${length}cm
+                    </div>
+                    <div class="answer-value">答え: ${length}cm</div>
+                </div>
+                
+                <div class="answer-item">
+                    <h5>(3) ${count + 1}本の場合</h5>
+                    <p><strong>考え方：</strong> 本数が増えると、1本あたりの力が小さくなる</p>
+                    <div class="formula">
+                        1本あたりの力 = ${weight}g ÷ ${count + 1} = ${weightPerSpringPlus.toFixed(2)}g<br>
+                        伸び = ${baseStretch}cm × (${weightPerSpringPlus.toFixed(2)} ÷ ${baseWeight}) = ${stretchPlus.toFixed(2)}cm<br>
+                        ばねの長さ = ${natural}cm + ${stretchPlus.toFixed(2)}cm = ${lengthPlus.toFixed(2)}cm
+                    </div>
+                    <div class="answer-value">答え: ${lengthPlus.toFixed(2)}cm</div>
+                </div>
+            `;
+        }
+
+        // 単一ばねの図を描画
+        function drawSingleSpring(naturalLength, stretch) {
+            const canvas = document.getElementById('single-canvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = 600;
+            const height = canvas.height = 400;
+
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#fafafa';
+            ctx.fillRect(0, 0, width, height);
+
+            const centerX = width / 2;
+            const ceilingY = 20;
+            const springStart = 30;
+            const springHeight = 100 + stretch * 2;
+            const springEnd = springStart + springHeight;
+
+            // 天井
+            ctx.fillStyle = '#333';
+            for (let i = 0; i < width; i += 20) {
+                ctx.fillRect(i, 0, 10, 10);
+            }
+            ctx.fillRect(0, ceilingY - 3, width, 3);
+
+            // ばね
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(centerX, springStart);
+            for (let i = 0; i < 20; i++) {
+                const y = springStart + (springHeight / 20) * i;
+                const x = centerX + (i % 2 === 0 ? -15 : 15);
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(centerX, springEnd);
+            ctx.stroke();
+
+            // ばねラベル
+            ctx.fillStyle = '#d63384';
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText('ばねA', centerX + 30, springStart + 40);
+
+            // おもり
+            const weightY = springEnd + 5;
+            ctx.fillStyle = '#FFD700';
+            ctx.strokeStyle = '#B8860B';
+            ctx.lineWidth = 3;
+            ctx.fillRect(centerX - 25, weightY, 50, 50);
+            ctx.strokeRect(centerX - 25, weightY, 50, 50);
+
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('おもり', centerX, weightY + 30);
+        }
+
+        // 直列ばねの図を描画
+        function drawSeriesSpring(stretchA, stretchB) {
+            const canvas = document.getElementById('series-canvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = 600;
+            const height = canvas.height = 400;
+
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#fafafa';
+            ctx.fillRect(0, 0, width, height);
+
+            const centerX = width / 2;
+            const ceilingY = 20;
+            const springAStart = 30;
+            const springAHeight = 80 + stretchA * 1.5;
+            const springAEnd = springAStart + springAHeight;
+
+            const springBStart = springAEnd + 10;
+            const springBHeight = 80 + stretchB * 1.5;
+            const springBEnd = springBStart + springBHeight;
+
+            // 天井
+            ctx.fillStyle = '#333';
+            for (let i = 0; i < width; i += 20) {
+                ctx.fillRect(i, 0, 10, 10);
+            }
+            ctx.fillRect(0, ceilingY - 3, width, 3);
+
+            // ばねA
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(centerX, springAStart);
+            for (let i = 0; i < 15; i++) {
+                const y = springAStart + (springAHeight / 15) * i;
+                const x = centerX + (i % 2 === 0 ? -15 : 15);
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(centerX, springAEnd);
+            ctx.stroke();
+
+            // ばねAラベル
+            ctx.fillStyle = '#d63384';
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText('ばねA', centerX + 30, springAStart + 30);
+
+            // 接続点
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(centerX, springAEnd + 5, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // ばねB
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(centerX, springBStart);
+            for (let i = 0; i < 15; i++) {
+                const y = springBStart + (springBHeight / 15) * i;
+                const x = centerX + (i % 2 === 0 ? -15 : 15);
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(centerX, springBEnd);
+            ctx.stroke();
+
+            // ばねBラベル
+            ctx.fillStyle = '#d63384';
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText('ばねB', centerX + 30, springBStart + 30);
+
+            // おもり
+            const weightY = springBEnd + 5;
+            ctx.fillStyle = '#FFD700';
+            ctx.strokeStyle = '#B8860B';
+            ctx.lineWidth = 3;
+            ctx.fillRect(centerX - 25, weightY, 50, 50);
+            ctx.strokeRect(centerX - 25, weightY, 50, 50);
+
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('おもり', centerX, weightY + 30);
+        }
+
+        // 並列ばねの図を描画
+        function drawParallelSpring(count, stretch) {
+            const canvas = document.getElementById('parallel-canvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = 600;
+            const height = canvas.height = 400;
+
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#fafafa';
+            ctx.fillRect(0, 0, width, height);
+
+            const ceilingY = 20;
+            const springStart = 30;
+            const springHeight = 100 + stretch * 2;
+            const springEnd = springStart + springHeight;
+
+            const spacing = Math.min(150, 400 / (count + 1));
+            const startX = (width - spacing * (count - 1)) / 2;
+
+            // 天井
+            ctx.fillStyle = '#333';
+            for (let i = 0; i < width; i += 20) {
+                ctx.fillRect(i, 0, 10, 10);
+            }
+            ctx.fillRect(0, ceilingY - 3, width, 3);
+
+            // ばね（複数本）
+            for (let i = 0; i < count; i++) {
+                const x = startX + spacing * i;
+
+                ctx.strokeStyle = '#666';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(x, springStart);
+                for (let j = 0; j < 15; j++) {
+                    const y = springStart + (springHeight / 15) * j;
+                    const offsetX = x + (j % 2 === 0 ? -15 : 15);
+                    ctx.lineTo(offsetX, y);
+                }
+                ctx.lineTo(x, springEnd);
+                ctx.stroke();
+
+                // 接続点
+                ctx.fillStyle = '#333';
+                ctx.beginPath();
+                ctx.arc(x, springEnd, 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // 棒
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(startX - 30, springEnd, spacing * (count - 1) + 60, 10);
+
+            // 棒ラベル
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('棒（重さは考えない）', width / 2, springEnd - 8);
+
+            // ひも
+            const stringY = springEnd + 10;
+            ctx.fillStyle = '#333';
+            ctx.fillRect(width / 2 - 1.5, stringY, 3, 50);
+
+            // おもり
+            const weightY = stringY + 50;
+            ctx.fillStyle = '#FFD700';
+            ctx.strokeStyle = '#B8860B';
+            ctx.lineWidth = 3;
+            ctx.fillRect(width / 2 - 25, weightY, 50, 50);
+            ctx.strokeRect(width / 2 - 25, weightY, 50, 50);
+
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('おもり', width / 2, weightY + 30);
+        }
+
+        // ページ読み込み時に問題を初期表示
+        document.addEventListener('DOMContentLoaded', function () {
+            // 全タブの問題を生成
+            generateSingleSpring();
+            generateSeriesSpring();
+            generateParallelSpring();
+
+            // インライン編集可能な要素にイベントリスナーを設定
+            setupEditableListeners();
+        });
+
+        // インライン編集のイベントリスナー設定
+        function setupEditableListeners() {
+            document.querySelectorAll('.editable-value').forEach(el => {
+                // 数値のみ入力を許可
+                el.addEventListener('keydown', function (e) {
+                    // 改行を防止
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.blur();
+                    }
+                    // 数字、バックスペース、矢印キー、小数点のみ許可
+                    const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', '.'];
+                    if (!allowedKeys.includes(e.key) && !/^\d$/.test(e.key)) {
+                        e.preventDefault();
+                    }
+                });
+
+                // フォーカス時に全選択
+                el.addEventListener('focus', function () {
+                    const range = document.createRange();
+                    range.selectNodeContents(this);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                });
+
+                // 入力時にバリデーション
+                el.addEventListener('input', function () {
+                    const min = parseFloat(this.dataset.min) || 1;
+                    const max = parseFloat(this.dataset.max) || 999;
+                    const value = parseFloat(this.textContent);
+
+                    if (isNaN(value) || value < min) {
+                        this.classList.add('error');
+                    } else if (value > max) {
+                        this.classList.add('error');
+                    } else {
+                        this.classList.remove('error');
+                    }
+                });
+
+                // フォーカスが外れた時に問題を再生成
+                el.addEventListener('blur', function () {
+                    const min = parseFloat(this.dataset.min) || 1;
+                    const max = parseFloat(this.dataset.max) || 999;
+                    let value = parseFloat(this.textContent);
+
+                    // 値を範囲内に収める
+                    if (isNaN(value) || value < min) {
+                        value = min;
+                        this.textContent = value;
+                    } else if (value > max) {
+                        value = max;
+                        this.textContent = value;
+                    }
+
+                    this.classList.remove('error');
+
+                    // 該当するタブの問題を再生成
+                    const id = this.id;
+                    if (id.startsWith('single-')) {
+                        generateSingleSpring();
+                    } else if (id.startsWith('series-')) {
+                        generateSeriesSpring();
+                    } else if (id.startsWith('parallel-')) {
+                        generateParallelSpring();
+                    }
+                });
+            });
+        }
+
+        // 印刷機能
+        function printProblem(type) {
+            // タブインデックスを取得
+            const tabIndex = type === 'single' ? 0 : type === 'series' ? 1 : 2;
+            const tabContent = document.getElementById(`tab-${tabIndex}`);
+            const answerSection = document.getElementById(`${type}-answer`);
+
+            // 印刷前の状態を保存
+            const wasAnswerShown = answerSection.classList.contains('show');
+
+            // 印刷用クラスを追加
+            tabContent.classList.add('printing');
+            answerSection.classList.add('print-show');
+
+            // 解答セクションを表示（印刷中のみ）
+            if (!wasAnswerShown) {
+                answerSection.classList.add('show');
+            }
+
+            // 印刷ダイアログを表示
+            setTimeout(() => {
+                window.print();
+
+                // 印刷後に元の状態に戻す
+                setTimeout(() => {
+                    tabContent.classList.remove('printing');
+                    answerSection.classList.remove('print-show');
+
+                    if (!wasAnswerShown) {
+                        answerSection.classList.remove('show');
+                    }
+                }, 100);
+            }, 100);
+        }
+    </script>
+</body>
+
+</html>
